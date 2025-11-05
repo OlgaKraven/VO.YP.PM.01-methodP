@@ -1,0 +1,1101 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Практическое задание — Проектирование информационных систем</title>
+  <link rel="stylesheet" href="styles.css" />
+<style>
+table { border-collapse: collapse; width: 100%; margin-bottom: 1em; }
+th, td { border: 1px solid #444; padding: 6px 10px; text-align: left; vertical-align: top; }
+thead th { background: #f0f0f0; }
+tbody tr:nth-child(even) { background: #fafafa; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Практическое задание — Проектирование информационных систем</h1>
+    </header>
+
+    <section id="task-list">
+      <h2>Описание задачи</h2>
+      <ol>
+        <li>Провести анализ предметной области и выявить основные бизнес‑процессы.</li>
+        <li>Сформулировать цели и задачи создаваемой информационной системы.</li>
+        <li>Определить пользователей (актеров) и их роли.</li>
+        <li>Построить контекстную диаграмму (C4–Context или IDEF0), отражающую взаимодействие системы с внешними субъектами.</li>
+        <li>Разработать структурную модель данных (ER‑диаграмму) в нотации Crow’s Foot, Chen или IDEF1X.</li>
+        <li>Создать логическую модель базы данных (3НФ) с указанием ключей и связей.</li>
+        <li>Описать основные функции системы с помощью UML‑диаграмм: вариантов использования (Use Case), последовательностей (Sequence), активности (Activity).</li>
+        <li>Сформировать архитектурную модель системы (компонентную или многослойную, C4–Container).</li>
+        <li>Разработать прототип интерфейса.</li>
+      </ol>
+    </section>
+
+    <section id="stage1">
+      <h2>Этап 1. Анализ предметной области и выявление основных бизнес‑процессов</h2>
+
+      <h3>Пример предметной области: «Онлайн‑театр»</h3>
+      <h4>1. Анализ предметной области</h4>
+      <h5>Описание</h5>
+      <p>Онлайн‑театр — это веб‑система, позволяющая пользователям просматривать афишу спектаклей, выбирать места в зале, бронировать и покупать билеты онлайн. Система должна обеспечить взаимодействие зрителей, администрации театра и платёжных сервисов.</p>
+
+      <h5>Основные сущности</h5>
+      <ul>
+        <li>спектакль (пьеса, дата, время, зал);</li>
+        <li>место (ряд, номер, зона, цена);</li>
+        <li>заказ (список мест, статус, оплата);</li>
+        <li>пользователь (зритель, администратор);</li>
+        <li>платёж (сумма, статус, дата);</li>
+      </ul>
+
+      <h4>2. Основные бизнес‑процессы</h4>
+      <table>
+        <thead>
+          <tr><th>№</th><th>Процесс</th><th>Краткое описание</th><th>Участники</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Просмотр афиши</td><td>Пользователь просматривает список спектаклей и даты</td><td>Зритель</td></tr>
+          <tr><td>2</td><td>Выбор мест</td><td>Пользователь открывает схему зала и выбирает свободные места</td><td>Зритель</td></tr>
+          <tr><td>3</td><td>Бронирование билета</td><td>Система создаёт заказ со статусом «Забронировано»</td><td>Зритель, Система</td></tr>
+          <tr><td>4</td><td>Оплата билета</td><td>Пользователь оплачивает бронь через платёжный сервис</td><td>Зритель, Платёжный сервис</td></tr>
+          <tr><td>5</td><td>Подтверждение оплаты</td><td>Система получает уведомление об успешной оплате</td><td>Система, Платёжный сервис</td></tr>
+          <tr><td>6</td><td>Отправка билета на почту</td><td>Система формирует и отправляет электронный билет</td><td>Система, Почтовый сервис</td></tr>
+          <tr><td>7</td><td>Управление репертуаром</td><td>Администратор добавляет, редактирует или снимает спектакли с афиши</td><td>Администратор</td></tr>
+          <tr><td>8</td><td>Аналитика продаж</td><td>Администратор просматривает отчёты о продажах</td><td>Администратор</td></tr>
+        </tbody>
+      </table>
+
+      <h4>3. Визуализация — схема бизнес‑процессов (упрощённая BPMN / текстовый flow)</h4>
+      <pre class="mermaid">flowchart LR
+  U[Пользователь] --> A[Просмотр афиши]
+  A --> B[Выбор спектакля]
+  B --> C[Выбор мест]
+  C --> D[Оформление заказа]
+  D --> E[Оплата через платёжный сервис]
+  E --> F[Подтверждение оплаты]
+  F --> G[Получение электронного билета]
+      </pre>
+    </section>
+
+    <section id="stage2">
+      <h2>Этап 2. Формулировка целей и задач информационной системы</h2>
+
+      <h3>Пример: Информационная система «Онлайн-театр»</h3>
+
+      <h4>1. Цель создания системы</h4>
+      <p>Создание информационной системы «Онлайн-театр» направлено на автоматизацию процессов продажи и бронирования билетов на спектакли, повышение удобства взаимодействия зрителей с театром, а также сокращение трудозатрат персонала на обработку заказов и ведение отчётности.</p>
+
+      <p><strong>Главная цель:</strong> обеспечить пользователям доступ к афише, бронированию и оплате билетов через веб-интерфейс с возможностью получения электронного билета без обращения в кассу.</p>
+
+      <h4>2. Задачи информационной системы</h4>
+      <table>
+        <thead>
+          <tr><th>№</th><th>Задача</th><th>Ожидаемый результат</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>1</td><td>Разработать каталог спектаклей с актуальной афишей</td><td>Зритель видит расписание и краткое описание постановок</td></tr>
+          <tr><td>2</td><td>Реализовать интерактивный выбор мест в зале</td><td>Пользователь выбирает доступные места на схеме</td></tr>
+          <tr><td>3</td><td>Создать модуль регистрации и авторизации пользователей</td><td>Возможность сохранять заказы и историю покупок</td></tr>
+          <tr><td>4</td><td>Организовать бронирование и оплату билетов онлайн</td><td>Минимизация очередей и ручной обработки</td></tr>
+          <tr><td>5</td><td>Интегрировать платёжный сервис</td><td>Безопасные транзакции и уведомления об оплате</td></tr>
+          <tr><td>6</td><td>Автоматизировать отправку электронных билетов</td><td>Удобная доставка билетов на e-mail</td></tr>
+          <tr><td>7</td><td>Реализовать административную панель</td><td>Администратор управляет спектаклями, залами, ценами</td></tr>
+          <tr><td>8</td><td>Ввести отчётность и аналитику продаж</td><td>Анализ загрузки залов, доходов, статистика по спектаклям</td></tr>
+          <tr><td>9</td><td>Обеспечить защиту пользовательских данных</td><td>Безопасность хранения паролей и персональной информации</td></tr>
+        </tbody>
+      </table>
+
+      <h4>3. Связь с бизнес-целями организации</h4>
+      <table>
+        <thead>
+          <tr><th>Бизнес-цель театра</th><th>Как помогает система</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Увеличение продаж</td><td>Доступность онлайн-покупки 24/7</td></tr>
+          <tr><td>Повышение удовлетворённости клиентов</td><td>Удобный интерфейс и быстрая покупка</td></tr>
+          <tr><td>Сокращение затрат на персонал</td><td>Автоматизация кассы и отчётов</td></tr>
+          <tr><td>Современный имидж театра</td><td>Цифровизация услуг и аналитика данных</td></tr>
+        </tbody>
+      </table>
+
+      <h4>4. Критерии успешности проекта</h4>
+      <table>
+        <thead>
+          <tr><th>Критерий</th><th>Метрика</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Рост онлайн-продаж</td><td>+30% за 3 месяца после запуска</td></tr>
+          <tr><td>Снижение ошибок бронирования</td><td><1% от общего числа заказов</td></tr>
+          <tr><td>Среднее время покупки</td><td>не более 3 минут</td></tr>
+          <tr><td>Доступность сервиса</td><td>99% uptime</td></tr>
+          <tr><td>Удовлетворённость пользователей</td><td>≥ 4.5 из 5 по опросам</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="stage3">
+      <h2>Этап 3. Пользователи (акторы) и роли</h2>
+
+      <h3>3.1. Список акторов (включая внешние сервисы)</h3>
+      <table>
+        <thead><tr><th>Актор</th><th>Тип</th><th>Краткая роль/интерес</th></tr></thead>
+        <tbody>
+          <tr><td>Гость</td><td>человек</td><td>Просматривает афишу, цены, доступность мест без регистрации</td></tr>
+          <tr><td>Зритель (пользователь)</td><td>человек</td><td>Регистрируется/входит, выбирает места, оформляет и оплачивает заказ, получает e-билет</td></tr>
+          <tr><td>Администратор репертуара</td><td>человек</td><td>Управляет спектаклями, датами, залами, ценовыми зонами</td></tr>
+          <tr><td>Оператор кассы (офлайн)</td><td>человек</td><td>Продаёт/возвращает билеты в кассе, синхронизируется c онлайн-продажами</td></tr>
+          <tr><td>Администратор системы</td><td>человек</td><td>Управляет ролями, доступами, справочниками, аудитом</td></tr>
+          <tr><td>Бухгалтер/Фин-аналитик</td><td>человек</td><td>Формирует отчёты по продажам, возвратам, налогам</td></tr>
+          <tr><td>Платёжный сервис</td><td>система</td><td>Авторизация/капчер платежей, отправка вебхуков статусов</td></tr>
+          <tr><td>Почтовый сервис</td><td>система</td><td>Доставка e-билетов и уведомлений</td></tr>
+          <tr><td>Сервис аналитики (Web Analytics)</td><td>система</td><td>Сбор событий, воронки, конверсии</td></tr>
+          <tr><td>Антифрод/скоринг (опционально)</td><td>система</td><td>Проверка риск-профиля транзакции/покупателя</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.2. Ролевые модели и права (RBAC)</h3>
+      <table>
+        <thead><tr><th>Сущность / Действие</th><th>Гость</th><th>Зритель</th><th>Админ репертуара</th><th>Оператор кассы</th><th>Админ системы</th><th>Бухгалтер</th></tr></thead>
+        <tbody>
+          <tr><td>Просмотр афиши</td><td>R</td><td>R</td><td>R</td><td>R</td><td>R</td><td>R</td></tr>
+          <tr><td>Выбор мест</td><td>R</td><td>R</td><td>R</td><td>R</td><td>R</td><td></td></tr>
+          <tr><td>Создание заказа</td><td></td><td>C</td><td></td><td>C</td><td></td><td></td></tr>
+          <tr><td>Оплата заказа</td><td></td><td>U (оплатить)</td><td></td><td>U (касса)</td><td></td><td></td></tr>
+          <tr><td>Возврат/обмен</td><td></td><td>CR (по правилам)</td><td></td><td>CRU</td><td></td><td>R</td></tr>
+          <tr><td>Спектакли/даты/цены</td><td></td><td></td><td>CRUD</td><td>R</td><td>R</td><td></td></tr>
+          <tr><td>Залы/схемы/зоны</td><td></td><td></td><td>CRUD</td><td>R</td><td>R</td><td></td></tr>
+          <tr><td>Пользователи/роли</td><td></td><td></td><td></td><td></td><td>CRUD</td><td></td></tr>
+          <tr><td>Отчёты/экспорт</td><td>R (свои)</td><td>R</td><td>R</td><td>R</td><td>CRUD</td><td></td></tr>
+        </tbody>
+      </table>
+      <p>Примечания: R—Read, C—Create, U—Update, D—Delete. Возвраты зрителя ограничены правилами тарифа и сроками.</p>
+
+      <h3>3.3. Ответственности (RACI) по ключевым процессам</h3>
+      <table>
+        <thead><tr><th>Процесс</th><th>R (исполняет)</th><th>A (отвечает)</th><th>C (консульт.)</th><th>I (информ.)</th></tr></thead>
+        <tbody>
+          <tr><td>Публикация репертуара</td><td>Админ репертуара</td><td>Админ репертуара</td><td>Админ системы</td><td>Все</td></tr>
+          <tr><td>Продажа билетов онлайн</td><td>Зритель</td><td>Админ системы</td><td>Платёжный сервис</td><td>Бухгалтер</td></tr>
+          <tr><td>Продажа в кассе</td><td>Оператор кассы</td><td>Админ системы</td><td>Бухгалтер</td><td>Админ репертуара</td></tr>
+          <tr><td>Возвраты/обмен</td><td>Оператор кассы</td><td>Админ системы</td><td>Бухгалтер</td><td>Зритель</td></tr>
+          <tr><td>Рассылка e-билетов</td><td>Почтовый сервис</td><td>Админ системы</td><td></td><td>Зритель</td></tr>
+          <tr><td>Финансовая отчётность</td><td>Бухгалтер</td><td>Бухгалтер</td><td>Админ системы</td><td>Руководство</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.4. Пользовательские истории (User Stories)</h3>
+      <ul>
+        <li>Как гость, я хочу видеть ближайшие спектакли и цены, чтобы решить, стоит ли регистрироваться.</li>
+        <li>Как зритель, я хочу выбрать места на интерактивной схеме, чтобы контролировать видимость и стоимость.</li>
+        <li>Как зритель, я хочу оплатить заказ и получить e-билет на e-mail, чтобы пройти на спектакль без кассы.</li>
+        <li>Как админ репертуара, я хочу управлять датами и тарифами, чтобы оперативно корректировать афишу.</li>
+        <li>Как оператор кассы, я хочу быстро оформлять покупки/возвраты, чтобы не создавать очереди.</li>
+        <li>Как бухгалтер, я хочу выгружать реестр платежей и возвратов, чтобы сверять отчётность.</li>
+      </ul>
+
+      <h3>3.5. Нефункциональные ожидания по ролям (NFR)</h3>
+      <table>
+        <thead><tr><th>Роль</th><th>Юзабилити</th><th>Безопасность</th><th>Производительность</th></tr></thead>
+        <tbody>
+          <tr><td>Зритель</td><td>≤3 клика до оплаты</td><td>PCI-friendly редирект на платёж</td><td><2 сек загрузки схемы зала</td></tr>
+          <tr><td>Оператор кассы</td><td>Горячие клавиши</td><td>Ролевая аутентификация</td><td>Стабильность офлайн-режима</td></tr>
+          <tr><td>Бухгалтер</td><td>Экспорт в XLSX/1С</td><td>Доступ по роли, маскирование ПДн</td><td>Большие выборки без таймаутов</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.6. Персоны (портреты)</h3>
+      <ul>
+        <li>Анна, 28: покупает 2–4 билета, важны быстрый выбор и Apple/Google Pay.</li>
+        <li>Игорь, 45 (оператор кассы): ценит быстрые операции и печать билетов.</li>
+        <li>Мария, 36 (админ репертуара): следит за заполняемостью, меняет цены по зонам.</li>
+        <li>Олег, 40 (бухгалтер): делает закрывающие отчёты, нужны корректные статусы платежей.</li>
+      </ul>
+
+      <h3>3.7. Модель владения данными</h3>
+      <table>
+        <thead><tr><th>Домен</th><th>Владелец</th><th>Источник истины</th></tr></thead>
+        <tbody>
+          <tr><td>Репертуар, залы, цены</td><td>Админ репертуара</td><td>Каталог спектаклей и конфиг зала</td></tr>
+          <tr><td>Заказы, билеты</td><td>Зритель/Касса</td><td>Сервис заказов</td></tr>
+          <tr><td>Платежи</td><td>Платёжный сервис/Бухгалтер</td><td>Журнал платежей + вебхуки</td></tr>
+          <tr><td>Пользователи, роли</td><td>Админ системы</td><td>IAM/Users сервис</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.8. CRUD-матрица по сущностям</h3>
+      <table>
+        <thead><tr><th>Сущность</th><th>Гость</th><th>Зритель</th><th>Админ репертуара</th><th>Оператор кассы</th><th>Админ системы</th><th>Бухгалтер</th></tr></thead>
+        <tbody>
+          <tr><td>User</td><td></td><td>C (self) RU</td><td></td><td></td><td>CRUD</td><td></td></tr>
+          <tr><td>Performance (сеанс)</td><td>R</td><td>R</td><td>CRUD</td><td>R</td><td>R</td><td>R</td></tr>
+          <tr><td>Hall/Seat/Zone</td><td>R</td><td>R</td><td>CRUD</td><td>R</td><td>R</td><td></td></tr>
+          <tr><td>Order</td><td></td><td>CRU (свои)</td><td></td><td>CRU</td><td>RU</td><td>R</td></tr>
+          <tr><td>Ticket</td><td></td><td>RU (свои)</td><td></td><td>CRU</td><td>RU</td><td>R</td></tr>
+          <tr><td>Payment</td><td></td><td>C (init) R (status)</td><td></td><td>CRU</td><td>RU</td><td>CRUD</td></tr>
+          <tr><td>PriceRule/Promo</td><td></td><td></td><td>CRUD</td><td>R</td><td>RU</td><td>R</td></tr>
+        </tbody>
+      </table>
+
+      <h3>3.9. Риски, злоупотребления и меры</h3>
+      <table>
+        <thead><tr><th>Риск</th><th>Сценарий</th><th>Мера</th></tr></thead>
+        <tbody>
+          <tr><td>Двойная продажа места</td><td>Параллельные клики на одно место</td><td>Блокировки мест (hold) с TTL, транзакции</td></tr>
+          <tr><td>Фрод-платежи</td><td>Кардинг/чарджбэки</td><td>3-DS, антифрод-проверки, лимиты</td></tr>
+          <tr><td>Массовые возвраты</td><td>Злоупотребление бесплатными отменами</td><td>Правила тарифа, удержания, одобрение менеджера</td></tr>
+          <tr><td>Спам-регистрация</td><td>Боты создают учётки</td><td>CAPTCHA, e-mail подтверждение</td></tr>
+          <tr><td>Утечка ПДн</td><td>Доступ сверх роли</td><td>RBAC, аудит, шифрование, журнал доступа</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <section id="stage4">
+<h2>Этап 4. Контекстная диаграмма</h2>
+<h3>Вариант с C4–Context</h3>
+<p>Уровень C1 (Context): показываем систему «как чёрный ящик» и её окружение.</p>
+<pre class="mermaid">flowchart TB
+  %% Внешние акторы
+  User[Зритель покупатель]
+  Guest[Гость]
+  Admin[Администратор репертуара]
+  Cashier[Оператор кассы]
+  Pay[Платёжный сервис]
+  Mail[Почтовый сервис]
+  Analytics[Сервис веб-аналитики]
+
+  %% Система как единый блок (контекст)
+  subgraph System["Онлайн-театр ИС"]
+    App[Веб-приложение UI+API]
+  end
+
+  %% Взаимодействия
+  Guest -->|просмотр афиши| App
+  User -->|регистрация/вход; выбор мест; оформление заказа| App
+  App -->|e-билет; уведомления| User
+
+  Admin -->|управление афишей/ценами/залами| App
+  Cashier -->|продажа/возврат в кассе; сверка| App
+
+  App -->|инициация платежа| Pay
+  Pay -->|вебхук статуса оплаты| App
+
+  App -->|отправка писем/билетов| Mail
+  App -->|события, конверсии| Analytics
+
+</pre>
+</section>
+
+
+<section id="stage5">
+<h2>Этап 5. ER-диаграмма (Crow’s Foot-стиль в Mermaid)</h2>
+<pre class="mermaid">
+erDiagram
+  %% --------- СВЯЗИ (кардинальности) ----------
+  ROLE        ||--o{ USER : has
+  USER        ||--o{ ORDER : places
+  ORDER       ||--|{ TICKET : includes
+  ORDER       ||--o{ PAYMENT : has
+
+  PRODUCTION  ||--o{ PERFORMANCE : scheduled
+  HALL        ||--o{ PERFORMANCE : hosted_in
+
+  HALL        ||--o{ SEAT_ZONE : divides
+  SEAT_ZONE   ||--o{ SEAT : contains
+
+  PERFORMANCE ||--o{ PRICE_RULE : pricing
+  SEAT_ZONE   ||--o{ PRICE_RULE : for_zone
+
+  PERFORMANCE ||--o{ TICKET : emits
+  SEAT        ||--o{ TICKET : assigned_to
+
+  %% --------- СУЩНОСТИ И АТРИБУТЫ ----------
+  ROLE {
+    int id
+    string name
+  }
+
+  USER {
+    int id
+    string login
+    string full_name
+    string email
+    string phone
+    string password_hash
+    int role_id
+    bool is_active
+  }
+
+  PRODUCTION {
+    int id
+    string title
+    string author
+    int duration_min
+    string age_rating
+  }
+
+  HALL {
+    int id
+    string name
+    int seats_total
+  }
+
+  SEAT_ZONE {
+    int id
+    int hall_id
+    string name
+    float base_price
+  }
+
+  SEAT {
+    int id
+    int hall_id
+    int zone_id
+    int row_no
+    int seat_no
+  }
+
+  PERFORMANCE {
+    int id
+    int production_id
+    int hall_id
+    datetime starts_at
+    string status
+  }
+
+  PRICE_RULE {
+    int id
+    int performance_id
+    int zone_id
+    float price
+  }
+
+  ORDER {
+    int id
+    int user_id
+    datetime created_at
+    string status
+    string channel
+  }
+
+  TICKET {
+    int id
+    int order_id
+    int performance_id
+    int seat_id
+    string status
+    string qr_code
+  }
+
+  PAYMENT {
+    int id
+    int order_id
+    float amount
+    string provider
+    string status
+    datetime paid_at
+    string transaction_id
+  }
+
+
+</pre>
+<h3>Пояснения к диаграмме (как читать и проверять)</h3>
+<h4>Ключи</h4>
+<p>Все таблицы имеют <code>id PK</code> (суррогатный ключ). Внешние ключи помечены <code>FK</code> и указывают на «владельца» данных: <code>USER.role_id → ROLE.id</code>, <code>ORDER.user_id → USER.id</code>, <code>SEAT.zone_id → SEAT_ZONE.id</code>, <code>PERFORMANCE.production_id → PRODUCTION.id</code> и т.п.</p>
+
+
+<h4>Кардинальности (Crow’s Foot)</h4>
+<ul>
+<li><code>||--o{</code> означает «1 ко многим» (одна роль — много пользователей, один заказ — много билетов).</li>
+<li><code>||--|{</code> — «1 ко многим» с обязательной принадлежностью у дочерней сущности (каждый <code>TICKET</code> обязан принадлежать <code>ORDER</code>).</li>
+<li>Связка <code>PERFORMANCE + SEAT → TICKET</code> фиксирует выделение конкретного места на конкретный сеанс.</li>
+</ul>
+
+
+<h4>Ценообразование</h4>
+<p><code>PRICE_RULE(performance_id, zone_id, price)</code> — прайс для зоны на конкретный сеанс (динамическое ценообразование).</p>
+
+
+<h4>Платёжная модель</h4>
+<p><code>ORDER ||--o{ PAYMENT</code> оставляет возможность нескольких транзакций (доплаты/возвраты). Если требуется строго 1:1, можно заменить на <code>ORDER ||--o| PAYMENT</code>.</p>
+
+
+<h4>Минимальный набор статусов</h4>
+<ul>
+<li><code>PERFORMANCE.status</code>: <em>planned</em> / <em>canceled</em> / <em>finished</em></li>
+<li><code>TICKET.status</code>: <em>reserved</em> / <em>paid</em> / <em>refunded</em></li>
+<li><code>PAYMENT.status</code>: <em>initiated</em> / <em>paid</em> / <em>failed</em> / <em>refund</em></li>
+</ul>
+</section>
+
+
+<section id="stage6">
+<h2>6. Логическая модель (3НФ)</h2>
+
+
+<h3>6.1. Функциональные зависимости (FD) и обоснование 3НФ</h3>
+<p><em>(Главные детерминанты → зависимые атрибуты)</em></p>
+<ul>
+<li><strong>ROLE:</strong> id → name ⇒ Ключ: id. 1НФ/2НФ/3НФ: ок.</li>
+<li><strong>USER:</strong> id → {login, full_name, email, phone, password_hash, role_id, is_active}; login → id (уникален), email → id (уникален). Нет транзитивностей (роль по FK). 3НФ: ок.</li>
+<li><strong>PRODUCTION:</strong> id → {title, author, duration_min, age_rating}. 3НФ: ок.</li>
+<li><strong>HALL:</strong> id → {name, seats_total}; name уникален в пределах театра (допущение). 3НФ: ок.</li>
+<li><strong>SEAT_ZONE:</strong> (id) → {hall_id, name, base_price}; (hall_id, name) → id. 3НФ: ок.</li>
+<li><strong>SEAT:</strong> id → {hall_id, zone_id, row_no, seat_no}; (hall_id, row_no, seat_no) → id. Транзитивность по зоне исключаем целостностью: SEAT.zone_id должен ссылаться на зону того же hall_id (см. целостность §6.4). 3НФ: ок.</li>
+<li><strong>PERFORMANCE:</strong> id → {production_id, hall_id, starts_at, status}. 3НФ: ок.</li>
+<li><strong>PRICE_RULE:</strong> id → {performance_id, zone_id, price}; также уникально (performance_id, zone_id). 3НФ: ок.</li>
+<li><strong>ORDER:</strong> id → {user_id, created_at, status, channel}. 3НФ: ок.</li>
+<li><strong>TICKET:</strong> id → {order_id, performance_id, seat_id, status, qr_code}; также уникально (performance_id, seat_id) (нельзя продать одно место дважды на один сеанс). 3НФ: ок.</li>
+<li><strong>PAYMENT:</strong> id → {order_id, amount, provider, status, paid_at, transaction_id}; transaction_id уникален (если задан). 3НФ: ок.</li>
+</ul>
+<p>Все «статусы/каналы» — либо CHECK-ограничения, либо отдельные справочники (оба варианта допустимы в 3НФ; см. ниже).</p>
+
+
+<h3>6.2. Ключи и уникальности (UK)</h3>
+<p><strong>PK:</strong> id во всех таблицах.</p>
+<p><strong>UK (уникальные альтернативные ключи):</strong></p>
+<ul>
+<li>USER.login, USER.email</li>
+<li>SEAT(hall_id, row_no, seat_no)</li>
+<li>SEAT_ZONE(hall_id, name)</li>
+<li>PRICE_RULE(performance_id, zone_id)</li>
+<li>TICKET(performance_id, seat_id)</li>
+<li>PAYMENT.transaction_id (Nullable Unique)</li>
+</ul>
+
+
+<h3>6.3. Внешние ключи (FK)</h3>
+<ul>
+<li>USER.role_id → ROLE.id</li>
+<li>SEAT_ZONE.hall_id → HALL.id</li>
+<li>SEAT.hall_id → HALL.id</li>
+<li>SEAT.zone_id → SEAT_ZONE.id и (целостность зала, см. §6.4)</li>
+<li>PERFORMANCE.production_id → PRODUCTION.id</li>
+<li>PERFORMANCE.hall_id → HALL.id</li>
+<li>PRICE_RULE.performance_id → PERFORMANCE.id</li>
+<li>PRICE_RULE.zone_id → SEAT_ZONE.id</li>
+<li>ORDER.user_id → USER.id</li>
+<li>TICKET.order_id → ORDER.id</li>
+<li>TICKET.performance_id → PERFORMANCE.id</li>
+<li>TICKET.seat_id → SEAT.id</li>
+<li>PAYMENT.order_id → ORDER.id</li>
+</ul>
+
+
+<h3>6.4. Целостность и бизнес-правила</h3>
+<ul>
+<li><strong>Согласованность зал/зона/место:</strong> SEAT(hall_id, zone_id) должен указывать на зону того же зала.</li>
+<li><strong>Вариант А (рекомендуется):</strong> составной FK <code>SEAT(hall_id, zone_id)</code> → <code>SEAT_ZONE(hall_id, id)</code> и <code>UNIQUE SEAT_ZONE(hall_id, id)</code> (или соответствующий составной уникальный индекс).</li>
+<li><strong>Вариант B:</strong> триггер проверки соответствия <code>SEAT.hall_id == SEAT_ZONE.hall_id</code>.</li>
+<li><strong>Одна продажа места на сеанс:</strong> <code>UNIQUE (performance_id, seat_id)</code> в <code>TICKET</code>.</li>
+<li><strong>Цена &gt; 0:</strong> <code>PRICE_RULE.price &gt; 0</code>.</li>
+<li><strong>Сумма платежа &gt; 0:</strong> <code>PAYMENT.amount &gt; 0</code>.</li>
+<li><strong>Статусы/каналы — вариант CHECK:</strong></li>
+</ul>
+<pre><code>PERFORMANCE.status IN ('planned','canceled','finished')
+ORDER.status IN ('pending','paid','canceled','refunded')
+ORDER.channel IN ('online','cashdesk')
+TICKET.status IN ('reserved','paid','refunded')
+PAYMENT.status IN ('initiated','paid','failed','refund')</code></pre>
+<p>Либо вынести в справочники: <code>PERFORMANCE_STATUS</code>, <code>ORDER_STATUS</code>, <code>TICKET_STATUS</code>, <code>PAYMENT_STATUS</code>, <code>CHANNEL</code>.</p>
+
+
+      <h3>6.5. Индексы (минимально достаточные)</h3>
+      <p>Индексы по всем FK (ускоряют JOIN/DELETE/UPDATE):</p>
+      <p><code>USER(role_id), SEAT(hall_id), SEAT(zone_id), PERFORMANCE(production_id), PERFORMANCE(hall_id), PRICE_RULE(performance_id), PRICE_RULE(zone_id), ORDER(user_id), TICKET(order_id), TICKET(performance_id), TICKET(seat_id), PAYMENT(order_id)</code>.</p>
+      <p>По поиску: <code>USER(login)</code>, <code>USER(email)</code>, <code>PERFORMANCE(starts_at)</code>.</p>
+      <p>По уникальностям из §6.2 (они создают B-tree индексы автоматически).</p>
+
+      <h3>6.6. Вендор-нейтральный DDL-шаблон (сокращённый)</h3>
+      <p>Синтаксис близок к SQL-стандарту; для конкретной СУБД (PostgreSQL/MySQL) могут понадобиться типы/модификаторы.</p>
+      <pre><code class="language-sql">-- Справочники
+CREATE TABLE role (
+  id           INT PRIMARY KEY,
+  name         VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE "user" (
+  id           INT PRIMARY KEY,
+  login        VARCHAR(64) NOT NULL UNIQUE,
+  full_name    VARCHAR(200) NOT NULL,
+  email        VARCHAR(120) NOT NULL UNIQUE,
+  phone        VARCHAR(32),
+  password_hash VARCHAR(255) NOT NULL,
+  role_id      INT NOT NULL REFERENCES role(id),
+  is_active    BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+CREATE TABLE production (
+  id           INT PRIMARY KEY,
+  title        VARCHAR(200) NOT NULL,
+  author       VARCHAR(120),
+  duration_min INT CHECK (duration_min &gt; 0),
+  age_rating   VARCHAR(16)
+);
+
+CREATE TABLE hall (
+  id           INT PRIMARY KEY,
+  name         VARCHAR(100) NOT NULL UNIQUE,
+  seats_total  INT CHECK (seats_total &gt;= 0)
+);
+
+CREATE TABLE seat_zone (
+  id           INT PRIMARY KEY,
+  hall_id      INT NOT NULL REFERENCES hall(id),
+  name         VARCHAR(50) NOT NULL,
+  base_price   DECIMAL(10,2) NOT NULL CHECK (base_price &gt; 0),
+  UNIQUE (hall_id, name),
+  UNIQUE (hall_id, id) -- поддержка составных FK для согласованности зала
+);
+
+CREATE TABLE seat (
+  id           INT PRIMARY KEY,
+  hall_id      INT NOT NULL REFERENCES hall(id),
+  zone_id      INT NOT NULL REFERENCES seat_zone(id),
+  row_no       INT NOT NULL CHECK (row_no &gt; 0),
+  seat_no      INT NOT NULL CHECK (seat_no &gt; 0),
+  UNIQUE (hall_id, row_no, seat_no),
+  -- вариант согласованности: составной FK на (hall_id, zone_id)
+  FOREIGN KEY (hall_id, zone_id) REFERENCES seat_zone(hall_id, id)
+);
+
+CREATE TABLE performance (
+  id           INT PRIMARY KEY,
+  production_id INT NOT NULL REFERENCES production(id),
+  hall_id      INT NOT NULL REFERENCES hall(id),
+  starts_at    TIMESTAMP NOT NULL,
+  status       VARCHAR(16) NOT NULL
+    CHECK (status IN ('planned','canceled','finished'))
+);
+
+CREATE TABLE price_rule (
+  id             INT PRIMARY KEY,
+  performance_id INT NOT NULL REFERENCES performance(id),
+  zone_id        INT NOT NULL REFERENCES seat_zone(id),
+  price          DECIMAL(10,2) NOT NULL CHECK (price &gt; 0),
+  UNIQUE (performance_id, zone_id)
+);
+
+CREATE TABLE "order" (
+  id           INT PRIMARY KEY,
+  user_id      INT NOT NULL REFERENCES "user"(id),
+  created_at   TIMESTAMP NOT NULL,
+  status       VARCHAR(16) NOT NULL
+    CHECK (status IN ('pending','paid','canceled','refunded')),
+  channel      VARCHAR(16) NOT NULL
+    CHECK (channel IN ('online','cashdesk'))
+);
+
+CREATE TABLE ticket (
+  id             INT PRIMARY KEY,
+  order_id       INT NOT NULL REFERENCES "order"(id),
+  performance_id INT NOT NULL REFERENCES performance(id),
+  seat_id        INT NOT NULL REFERENCES seat(id),
+  status         VARCHAR(16) NOT NULL
+    CHECK (status IN ('reserved','paid','refunded')),
+  qr_code        VARCHAR(64),
+  UNIQUE (performance_id, seat_id) -- запрет двойной продажи
+);
+
+CREATE TABLE payment (
+  id             INT PRIMARY KEY,
+  order_id       INT NOT NULL REFERENCES "order"(id),
+  amount         DECIMAL(10,2) NOT NULL CHECK (amount &gt; 0),
+  provider       VARCHAR(32) NOT NULL,
+  status         VARCHAR(16) NOT NULL
+    CHECK (status IN ('initiated','paid','failed','refund')),
+  paid_at        TIMESTAMP NULL,
+  transaction_id VARCHAR(64) UNIQUE
+);
+</code></pre>
+      <p>Если предпочитаете справочники статусов — создайте таблицы <code>*_status</code> и замените CHECK на FK.</p>
+    </section>
+
+ <section id="stage7">
+      <h2>Этап 7 — UML (Use Case, Sequence, Activity)</h2>
+
+      <h3>7.1. UML Use Case — «Покупка билета»</h3>
+      <pre class="mermaid">flowchart LR
+  %% Имитируем use-case через блоки-оваллы и ассоциации
+  %% Акторы
+  A[«Зритель»]:::actor
+  P[«Платёжный сервис»]:::ext
+  M[«Почтовый сервис»]:::ext
+  K[«Оператор кассы»]:::actor
+
+  %% Система (границы)
+  subgraph S["Онлайн-театр (система)"]
+    UC1([Просмотр афиши]):::uc
+    UC2([Выбор мест]):::uc
+    UC3([Оформление заказа]):::uc
+    UC4([Оплата заказа]):::uc
+    UC5([Получение e-билета]):::uc
+    UC6([Возврат/обмен билета]):::uc
+    UC7([Уведомление статуса платежа]):::uc
+  end
+
+  %% Ассоциации
+  A --- UC1
+  A --- UC2
+  A --- UC3
+  A --- UC4
+  A --- UC5
+  K --- UC6
+
+  %% Внешние взаимодействия
+  UC4 --- P
+  UC5 --- M
+  UC7 --- P
+
+  %% Включения/расширения (текстовыми пометками)
+  UC3 -. include .- UC2
+  UC4 -. include .- UC3
+  UC6 -. extends .- UC5
+
+  classDef actor fill:#f7f7f7,stroke:#777,stroke-width:1px;
+  classDef ext fill:#fff8e1,stroke:#e0a800;
+  classDef uc fill:#e8f5ff,stroke:#0366d6;
+      </pre>
+      <p>Как читать: зритель проходит UC1→UC2→UC3→UC4→UC5; платёжный сервис участвует в UC4 и отправляет уведомления (UC7), почтовый сервис — в UC5; возвраты инициируются кассой и «расширяют» случай с уже выданным билетом.</p>
+
+      <h3>7.2. UML Sequence — «Оплата и выпуск e-билета»</h3>
+      <pre class="mermaid">sequenceDiagram
+  actor User as Зритель
+  participant UI as Веб-интерфейс
+  participant OrderSvc as Сервис заказов
+  participant Pay as Платёжный сервис
+  participant Mail as Почтовый сервис
+
+  User->>UI: Выбор мест, «Оформить заказ»
+  UI->>OrderSvc: POST /orders {места, сеанс}
+  OrderSvc-->>UI: 201 {orderId, сумма, статус=pending}
+
+  User->>UI: «Оплатить»
+  UI->>Pay: POST /payments {orderId, сумма, callbackUrl}
+  Pay-->>UI: 302 redirectToHostedCheckout
+  User->>Pay: Оплата на стороне провайдера
+
+  Note over Pay,OrderSvc: По завершении оплаты провайдер шлёт вебхук
+  Pay-->>OrderSvc: POST /webhook {orderId, status=paid, txnId}
+  OrderSvc->>OrderSvc: Зарезервированные места → билеты, статус=paid
+  OrderSvc->>Mail: POST /send {e-билет (QR/PDF), email}
+  Mail-->>OrderSvc: 202 Accepted
+
+  OrderSvc-->>UI: Обновлённый статус заказа (SSE/WebSocket/поллинг)
+  UI-->>User: Подтверждение + ссылка «Скачать e-билет»
+      </pre>
+      <ul>
+        <li>Блокировка мест и выпуск ticket выполняет OrderSvc после подтверждения вебхуком.</li>
+        <li>Доставка e-билета делегируется Mail (асинхронно).</li>
+        <li>Клиент получает финальный статус через SSE/WebSocket (или поллинг).</li>
+      </ul>
+
+      <h3>7.3. UML Activity — «Поток покупки»</h3>
+      <pre class="mermaid">
+        flowchart TD
+  Start([Старт])
+  A1[Просмотр афиши]
+  A2{Выбран сеанс?}
+  A3[Выбор мест]
+  A4{Места доступны?}
+  A5[Создание заказа]
+  A6[Переход к оплате]
+  A7{Оплата успешна?}
+  A8[Выпуск билетов]
+  A9[Отправка e-билета на email]
+  A10([Успех])
+  A11[Показ ошибки оплаты]
+  A12{Повторить оплату?}
+  A13([Отмена])
+  End([Конец])
+
+  Start --> A1 --> A2
+  A2 -- "нет" --> End
+  A2 -- "да" --> A3 --> A4
+  A4 -- "нет" --> A3
+  A4 -- "да" --> A5 --> A6 --> A7
+  A7 -- "да" --> A8 --> A9 --> A10 --> End
+  A7 -- "нет" --> A11 --> A12
+  A12 -- "да" --> A6
+  A12 -- "нет" --> A13 --> End
+
+      </pre>
+      <ul>
+        <li>Проверка доступности мест — перед созданием заказа.</li>
+        <li>Неуспешная оплата позволяет повторить платёж без пересоздания заказа (в окне TTL-брон hold).</li>
+        <li>Успешная оплата триггерит выпуск билетов и рассылку.</li>
+      </ul>
+    </section>
+<!-- === Этап 8: архитектурная модель (C4–Container, многослойная архитектура) === -->
+<section id="stage-8">
+  <h2>Этап 8: архитектурная модель (C4–Container, многослойная архитектура)</h2>
+
+  <h3>8.1. C4 — Container (приближённо на Mermaid)</h3>
+  <pre class="mermaid">
+flowchart TB
+  %% Users
+  U[Зритель -Web/Mobile]
+  K[Оператор кассы]
+  R[Админ репертуара]
+  
+  %% External systems
+  Pay[Платёжный сервис]
+  Mail[Почтовый сервис]
+  Analytics[Сервис веб-аналитики]
+
+  %% System boundary
+  subgraph Theatre["Онлайн-театр - система"]
+    subgraph WebApp["Web UI SPA/SSR"]
+      UI[Фронтенд - React/Vue/SSR]
+    end
+
+    subgraph API["Backend API -App Layer"]
+      Auth[Auth/Users API]
+      Order[Order & Ticket API]
+      Perf[Repertoire & Hall API]
+      Price[Pricing API]
+    end
+
+    subgraph Infra["Infra & Data"]
+      DB[RDBMS: theatre]
+      Q[[Очередь сообщений]]
+      Mailer[Email Worker]
+      Audit[Логирование/Аудит]
+      Cache[Кэш/Redis]
+    end
+  end
+
+  %% Primary flows
+  U -->|HTTPS/REST| UI
+  K -->|Back-office UI| UI
+  R -->|Admin UI| UI
+
+  UI -->|REST/GraphQL| API
+  API --> DB
+  API --> Cache
+  API --> Audit
+
+  Order --> Q
+  Q --> Mailer
+  Mailer --> Mail
+
+  API -->|инициация платежа| Pay
+  Pay -->|вебхук статуса| Order
+
+  UI -->|события| Analytics
+
+  %% Couplings inside API
+  Auth <--> Order
+  Perf <--> Price
+  </pre>
+
+  <p class="note mono">Идея: одно фронтенд-приложение (публичные и админ-экраны), бэкенд как набор логических контейнеров (микро- или модули в монолите), одна транзакционная БД, асинхронная обработка почты/уведомлений через очередь.</p>
+
+  <h3>8.2. Границы слоёв (многослойная архитектура)</h3>
+  <ul class="kv">
+    <li><strong>Presentation (UI):</strong> SPA/SSR, рендер страниц, валидаторы форм, минимальная бизнес-логика.</li>
+    <li><strong>Application (API):</strong> оркестрация сценариев («создать заказ», «принять вебхук», «выпустить билеты»), транзакции, политики.</li>
+    <li><strong>Domain (Core):</strong> сущности <em>Order, Ticket, Performance</em>, доменные правила (нельзя продать место дважды, TTL-бронь).</li>
+    <li><strong>Infrastructure:</strong> репозитории к БД, интеграции с Pay/Mail/Analytics, кэш, сообщения, логи.</li>
+  </ul>
+  <p><strong>MVC на уровне API:</strong> Controllers (вход), Services/UseCases (бизнес-правила), Repositories (доступ к данным), DTO/Validators (контракты).</p>
+
+  <h3>8.3. C4 — Component (внутри Backend API)</h3>
+  <pre class="mermaid">
+flowchart LR
+  subgraph App["Backend API"]
+    C1[AuthController]
+    C2[OrderController]
+    C3[TicketController]
+    C4[PerfController]
+    C5[WebhookController]
+    S1[UserService]
+    S2[OrderService]
+    S3[TicketService]
+    S4[PricingService]
+    S5[PerformanceService]
+    P1[PaymentProviderPort]
+    P2[MailPort]
+    R1[(UserRepository)]
+    R2[(OrderRepository)]
+    R3[(TicketRepository)]
+    R4[(PerfRepository)]
+    R5[(PriceRuleRepository)]
+  end
+
+  C1 --> S1 --> R1
+  C2 --> S2 --> R2
+  C3 --> S3 --> R3
+  C4 --> S5 --> R4
+  S4 --> R5
+  C5 --> S2
+  S2 --> P1
+  S3 --> P2
+  </pre>
+  <p class="note">Правило: контроллеры тонкие, «мозг» в сервисах; доступ к БД только через репозитории. Внешние интеграции закрыты «портами/адаптерами» (Hexagonal/Ports&amp;Adapters).</p>
+
+  <h3>8.4. Синхрон vs асинхрон</h3>
+  <div class="grid">
+    <table class="mono" style="width:100%; border-collapse:collapse">
+      <thead>
+        <tr>
+          <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px 4px">Взаимодействие</th>
+          <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px 4px">Тип</th>
+          <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px 4px">Почему</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style="padding:6px 4px">UI → API: CRUD, чтение каталога</td><td style="padding:6px 4px">Синхрон (HTTP)</td><td style="padding:6px 4px">Нужен быстрый отклик</td></tr>
+        <tr><td style="padding:6px 4px">API → Pay: init</td><td style="padding:6px 4px">Синхрон</td><td style="padding:6px 4px">Редирект на хостед-чекаут</td></tr>
+        <tr><td style="padding:6px 4px">Pay → API: webhook</td><td style="padding:6px 4px">Синхрон входящий</td><td style="padding:6px 4px">Фиксация статуса платежа</td></tr>
+        <tr><td style="padding:6px 4px">API → Queue: «Отправить e-билет»</td><td style="padding:6px 4px">Асинхрон</td><td style="padding:6px 4px">Разгружаем запрос пользователя</td></tr>
+        <tr><td style="padding:6px 4px">Worker → Mail</td><td style="padding:6px 4px">Асинхрон</td><td style="padding:6px 4px">Возможны ретраи, деградация</td></tr>
+        <tr><td style="padding:6px 4px">UI ←→ API: статус заказа</td><td style="padding:6px 4px">SSE/WebSocket/поллинг</td><td style="padding:6px 4px">Обновления после вебхука</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>8.5. NFR (нефункциональные требования) и тактики</h3>
+  <ul class="kv">
+    <li><strong>Доступность:</strong> 99%+, health-checks, readiness/liveness, blue-green/rolling deploy.</li>
+    <li><strong>Производительность:</strong> кэширование (/repertoire, схем залов), индексы БД, пагинация.</li>
+    <li><strong>Целостность:</strong> уникальность (performance_id, seat_id), транзакции при выпуске билетов.</li>
+    <li><strong>Безопасность:</strong> RBAC, хэш паролей, маскирование ПДн, HSTS/HTTPS, валидация вебхуков (подпись).</li>
+    <li><strong>Наблюдаемость:</strong> структурные логи, трассировка запросов, метрики (p95 latency, error rate).</li>
+    <li><strong>Масштабирование:</strong> API stateless → горизонтальное; очередь/воркеры → по нагрузке.</li>
+    <li><strong>Отказоустойчивость интеграций:</strong> ретраи с экспоненциальной паузой, DLQ для писем, circuit breaker к Pay/Mail.</li>
+  </ul>
+
+  <h3>8.6. Мини-контракты API (примеры)</h3>
+  <p><strong>Создать заказ</strong><br><span class="mono">POST /api/orders</span></p>
+  <pre><code class="language-json">{
+  "performanceId": 123,
+  "seats": [1011, 1012],
+  "contact": { "email": "a@b.c" }
+}</code></pre>
+  <p><em>Response 201</em></p>
+  <pre><code class="language-json">{
+  "orderId": 987,
+  "status": "pending",
+  "amount": 3200.00,
+  "currency": "RUB"
+}</code></pre>
+
+  <p><strong>Инициация платежа</strong><br><span class="mono">POST /api/payments</span></p>
+  <pre><code class="language-json">{
+  "orderId": 987,
+  "returnUrl": "https://site/thanks"
+}</code></pre>
+  <p><em>Response 200</em></p>
+  <pre><code class="language-json">{
+  "redirectUrl": "https://pay/hosted/..."
+}</code></pre>
+
+  <p><strong>Вебхук от платёжного провайдера</strong><br><span class="mono">POST /api/webhooks/pay</span></p>
+  <pre><code class="language-json">{
+  "orderId": 987,
+  "status": "paid",
+  "transactionId": "txn_456",
+  "signature": "..."
+}</code></pre>
+  <p class="note">Ответ 204. Сервер внутри: фиксирует оплату → выпускает билеты → шлёт задачу в очередь на почту.</p>
+
+  <h3>8.7. Мини-ADR (решения и компромиссы)</h3>
+  <ul class="kv">
+    <li>Единая БД — проще транзакционность на учебном этапе (в проде возможны шардирование/вынос платежного журнала).</li>
+    <li>Асинхронная почта через очередь — снижает время ответа пользователю.</li>
+    <li>Тонкий фронт, «толстый» домен — бизнес-правила сосредоточены в API.</li>
+    <li>Ports&amp;Adapters — упрощает смену провайдера платежей/почты в будущем.</li>
+  </ul>
+</section>
+<!-- === Этап 9: прототип интерфейса === -->
+<section id="stage-9">
+  <h2>Этап 9: прототип интерфейса</h2>
+
+  <h3>9.1. Карта экранов (IA / Sitemap)</h3>
+  <pre class="mermaid">
+flowchart TB
+  %% Public
+  Home[Главная / Афиша]
+  Card[Карточка спектакля]
+  Session[Выбор сеанса]
+  Seat[Схема зала / Выбор мест]
+  Checkout[Оформление заказа]
+  Pay[Оплата редирект]
+  Thanks[Страница Спасибо + билеты]
+
+  %% Profile
+  Auth[Вход/Регистрация/Восстановление]
+  Orders[Мои заказы и билеты]
+
+  %% Backoffice
+  Admin["Управление репертуаром сеансы и цены"]
+  Cashier["Продажа/возврат в кассе"]
+
+  %% Edges (public)
+  Home --> Card --> Session --> Seat --> Checkout --> Pay --> Thanks
+  Home -.-> Auth -.-> Orders
+
+  %% Backoffice edges
+  Admin -.-> Cashier
+
+  %% Grouping (visual only)
+  classDef public fill:#eef,stroke:#88a;
+  classDef private fill:#efe,stroke:#6a6;
+  classDef admin fill:#fee,stroke:#c88;
+
+  class Home,Card,Session,Seat,Checkout,Pay,Thanks public
+  class Auth,Orders private
+  class Admin,Cashier admin
+  </pre>
+
+  <h3>9.2. Пользовательские потоки (happy path)</h3>
+  <pre class="mermaid">
+flowchart LR
+  subgraph Guest_Purchase ["Гость → Покупка"]
+    A1[Афиша] --> A2[Карточка спектакля]
+    A2 --> A3[Сеанс]
+    A3 --> A4[Схема зала]
+    A4 --> A5[Оформление]
+    A5 --> A6[Оплата редирект]
+    A6 --> A7[Спасибо + e-билеты на email]
+  end
+
+  subgraph Viewer_History ["Зритель → История"]
+    B1[Вход] --> B2[Мои заказы]
+    B2 --> B3[Просмотр / скачивание e-билета]
+  end
+
+  </pre>
+
+  <h3>9.3. Карточки ключевых экранов (цель, блоки, состояния)</h3>
+  <details open>
+    <summary><strong>A. Афиша (каталог)</strong></summary>
+    <p><strong>Цель:</strong> быстро найти спектакль и дату.</p>
+    <p><strong>Блоки:</strong> поиск, фильтры (дата/жанр/возраст), карточки (постер, название, кратко, «Купить»).</p>
+    <p><strong>Состояния:</strong> пустой поиск, загрузка, ошибка сети.</p>
+  </details>
+  <details open>
+    <summary><strong>B. Карточка спектакля</strong></summary>
+    <p><strong>Цель:</strong> выбрать подходящий сеанс.</p>
+    <p><strong>Блоки:</strong> описание, отзывы (опц.), таблица сеансов (дата/время/зал/от ₽).</p>
+    <p><strong>Состояния:</strong> нет сеансов, sold-out, low-seats.</p>
+  </details>
+  <details open>
+    <summary><strong>C. Схема зала</strong></summary>
+    <p><strong>Цель:</strong> выбрать места.</p>
+    <p><strong>Блоки:</strong> легенда (зоны/цены), плашка итоговой суммы, кнопка «Оформить».</p>
+    <p><strong>Состояния мест:</strong> свободно / занято / забронировано / выбранное.</p>
+    <p class="note">Ошибка конкурентного выбора: показать тост «место уже занято».</p>
+  </details>
+  <details open>
+    <summary><strong>D. Оформление заказа</strong></summary>
+    <p><strong>Цель:</strong> ввести контакты и подтвердить.</p>
+    <p><strong>Поля минимум:</strong> email (обяз.), телефон, чекбокс согласия; резюме заказа (места, цена).</p>
+    <p><strong>Ошибки:</strong> валидация email/телефона, согласие обязательно. <strong>CTA:</strong> «Оплатить» (primary), «Изменить места» (secondary).</p>
+  </details>
+  <details open>
+    <summary><strong>E. «Спасибо» / Билеты</strong></summary>
+    <p><strong>Цель:</strong> подтвердить успех, дать ссылку на e-билеты.</p>
+    <p><strong>Блоки:</strong> статус оплаты, «Скачать PDF/PKPass», «Отправить ещё раз на email».</p>
+    <p><strong>Состояния:</strong> оплата в обработке → спиннер + автообновление статуса.</p>
+  </details>
+
+  <h3>9.4. Низкодетальный вайрфрейм (ASCII-эскиз)</h3>
+  <pre class="mono" aria-label="ASCII wireframes">
+[Афиша]                   [Схема зала]                         [Оформление]
+┌───────────────────┐     ┌───────────────┐                    ┌───────────────┐
+│ Поиск  [____] ⌕   │     │ Легенда       │                    │ Контакты       │
+│ Фильтры: жанр ▼   │     │ ● Свободно    │                    │ Email  [____]  │
+├───────────────────┤     │ ■ Занято      │                    │ Телефон[____]  │
+│ [Постер] Назв.    │     │ ■ Выбрано     │                    │ [ ] Согласие   │
+│ Дата/время ₁₀₀₀₽ │     └───────────────┘                    ├───────────────┤
+│ [Купить]          │     ┌───────────────────────────────┐    │ Итого: 3200₽  │
+├───────────────────┤     │ р1: ○○●○○○○○○○○○○○○○○○○○○○    │    │ [Оплатить]    │
+│ ...               │     │ р2: ○○○■○○○○○○○○○○○○○○○○○     │    │ [Изменить]    │
+└───────────────────┘     └───────────────────────────────┘    └───────────────┘
+  </pre>
+  <p class="note">Достаточно для бумаги / Balsamiq. В Figma — те же блоки сеткой.</p>
+
+  <h3>9.5. Компоненты (UI inventory)</h3>
+  <ul class="kv">
+    <li><strong>Навигация:</strong> Header (логотип, «Афиша», «Вход»/«Профиль»), Footer (контакты, оферта).</li>
+    <li><strong>Карточка спектакля:</strong> постер 3:4, название, возраст, длительность, «Купить».</li>
+    <li><strong>Таблица сеансов:</strong> дата, время, зал, «Выбрать».</li>
+    <li><strong>Seat-map:</strong> SVG или Canvas; легенда; ховер-подсказки.</li>
+    <li><strong>Форма:</strong> email, телефон, чекбоксы; ошибки под полем; подсказки.</li>
+    <li><strong>Тосты/диалоги:</strong> успех/ошибка, подтверждение «Очистить выбор?».</li>
+    <li><strong>Пагинация/пустые состояния:</strong> «Ничего не найдено — сбросьте фильтр».</li>
+  </ul>
+
+  <h3>9.6. Адаптив (рекомендованные брейкпоинты)</h3>
+  <table style="width:100%; border-collapse:collapse">
+    <thead>
+      <tr>
+        <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px 4px">Размер</th>
+        <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px 4px">Сетка</th>
+        <th style="text-align:left; border-bottom:1px solid var(--line); padding:6px 4px">Расположение ключевых блоков</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:6px 4px">Desktop 1440/1280</td><td style="padding:6px 4px">12 колонок</td><td style="padding:6px 4px">3–4 карточки в ряд; seat-map слева, резюме справа</td></tr>
+      <tr><td style="padding:6px 4px">Tablet 1024/768</td><td style="padding:6px 4px">8 колонок</td><td style="padding:6px 4px">2–3 карточки; seat-map над резюме</td></tr>
+      <tr><td style="padding:6px 4px">Mobile 390×844</td><td style="padding:6px 4px">4 колонки</td><td style="padding:6px 4px">1 карточка; sticky-панель «Итого + Оформить» снизу</td></tr>
+    </tbody>
+  </table>
+
+  <h3>9.7. Валидация и состояния форм</h3>
+  <ul class="kv">
+    <li><strong>Email:</strong> формат <span class="mono">name@domain</span>, текст ошибки «Введите корректный email».</li>
+    <li><strong>Телефон:</strong> маска <span class="mono">+7 (___) ___-__-__</span> (или локаль студента).</li>
+    <li><strong>Согласие:</strong> обязательный чекбокс; без него «Оплатить» — <em>disabled</em>.</li>
+    <li><strong>Кнопки:</strong> default / hover / pressed / disabled / loading.</li>
+    <li><strong>Доступность:</strong> фокус-контур у всех интерактивов.</li>
+  </ul>
+
+  <h3>9.8. Доступность (минимум WCAG 2.1 A/AA)</h3>
+  <ul class="kv">
+    <li>Контраст текста ≥ 4.5:1; минимальный размер шрифта ≥ 14–16 px.</li>
+    <li>Навигация с клавиатуры: логичный tab-порядок, видимый <em>focus</em>.</li>
+    <li>ARIA-лейблы для кнопок/иконок; alt-текст для постеров.</li>
+    <li>Ошибки рядом с полем + роль <span class="mono">alert</span>.</li>
+    <li>Не полагаться только на цвет (узоры/иконки в легенде seat-map).</li>
+  </ul>
+
+  <h3>9.9. Микрокопирайтинг (готовые тексты)</h3>
+  <p><strong>Кнопки:</strong> «Купить», «Выбрать места», «Оформить», «Оплатить», «Скачать e-билет».</p>
+  <p><strong>Ошибки:</strong><br>
+    «Место недоступно: кто-то успел раньше. Выберите другое.»<br>
+    «Проверьте email — похоже, опечатка.»
+  </p>
+  <p><strong>Пустые состояния:</strong><br>
+    «По вашему запросу спектаклей нет. Сбросьте фильтры или выберите другую дату.»
+  </p>
+  <p><strong>Подтверждения:</strong><br>
+    «Мы отправили e-билеты на {email}. Если письма нет, проверьте «Спам» или нажмите «Отправить ещё раз».»
+  </p>
+
+  <h3>9.10. Стайлгайд (минимум для прототипа)</h3>
+  <ul class="kv">
+    <li><strong>Сетка:</strong> 8-pt, контейнер 1200 px (desktop).</li>
+    <li><strong>Типографика:</strong> H1 28–32, H2 22–24, текст 16.</li>
+    <li><strong>Цвета состояний (пример):</strong> Primary — кнопки; Success — подтверждения; Danger — ошибки; Neutral — серые. В учебном прототипе допустим один акцентный цвет.</li>
+  </ul>
+
+  <h3>9.11. Интерактив в Figma/Balsamiq</h3>
+  <ul class="kv">
+    <li>Карточка спектакля → экран сеансов.</li>
+    <li>Сеанс → схема зала.</li>
+    <li>Выбор ≥1 места → активируется «Оформление».</li>
+    <li>«Оплатить» → «Спасибо».</li>
+    <li>«Скачать e-билет» → модальное «PDF скачан» (симуляция).</li>
+  </ul>
+</section>
+
+  </div>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true, securityLevel: 'loose', theme: 'default' });
+  </script>
+</body>
+</html>
